@@ -1,155 +1,293 @@
-<section class="mx-auto max-w-5xl space-y-4 sm:space-y-5">
-    <div class="rounded-3xl border border-slate-200 bg-white p-4 shadow-lg shadow-slate-200/60 sm:p-5">
-        <div class="mb-3 flex items-center justify-between gap-2">
-            <h1 class="text-lg font-bold tracking-tight sm:text-xl">Editor de repertorio</h1>
-            <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $repertoire->is_public ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600' }}">
-                {{ $repertoire->is_public ? 'Publico' : 'Privado' }}
-            </span>
+<section class="mx-auto max-w-6xl space-y-3 text-[14px] leading-5 text-[#dae2fd]">
+    <div class="overflow-hidden rounded border border-[#454652] bg-[#131b2e]">
+        <div class="flex flex-wrap items-center justify-between gap-2 bg-[#3c4c9f] px-3 py-2 text-[13px] font-bold text-[#dee0ff]">
+            <span>repertorio editor</span>
+            <span>{{ $repertoire->is_public ? 'publico' : 'privado' }}</span>
         </div>
 
-        <div class="flex flex-col gap-3 md:flex-row md:items-end">
-            <div class="w-full md:flex-1">
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">Nome do repertorio</label>
-                <input
-                    wire:model="repertoireName"
-                    type="text"
-                    class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-slate-900 outline-none focus:border-teal-500"
-                />
+        <div class="space-y-3 p-3">
+            <div class="grid grid-cols-1 gap-2 md:grid-cols-[1fr,auto] md:items-end">
+                <div>
+                    <label class="mb-1 block text-[12px] font-semibold text-[#a9bad3]">Nome do repertorio</label>
+                    <input wire:model="repertoireName" type="text" class="w-full rounded border border-[#454652] bg-[#0b1326] px-2 py-1.5 text-[15px] text-[#dae2fd]" />
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button wire:click="saveRepertoire" class="rounded border border-[#5262b2] bg-[#3c4c9f] px-3 py-1.5 text-[13px] font-semibold text-[#dee0ff] hover:bg-[#4858ab]">Salvar</button>
+                    <button wire:click="togglePublic" class="rounded border border-[#454652] bg-[#0b1326] px-3 py-1.5 text-[13px] font-semibold text-[#c6c5d4] hover:bg-[#171f33]">
+                        {{ $repertoire->is_public ? 'Despublicar' : 'Publicar' }}
+                    </button>
+                </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 md:flex md:items-center">
-                <button wire:click="saveRepertoire" class="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-700">
-                    Salvar
-                </button>
-                <button wire:click="togglePublic" class="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold hover:bg-slate-100">
-                    {{ $repertoire->is_public ? 'Despublicar' : 'Publicar' }}
-                </button>
-            </div>
+            @if ($repertoire->is_public)
+                <div class="rounded border border-[#454652] bg-[#0b1326] px-3 py-2 text-[12px] text-[#a9bad3]">
+                    Link publico: <a href="{{ route('repertoires.public', $repertoire->share_token) }}" target="_blank" class="font-semibold text-[#bac3ff] underline">{{ route('repertoires.public', $repertoire->share_token) }}</a>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    <div x-data="{ openAddBlock: false }" @block-added.window="openAddBlock = false" class="overflow-hidden rounded border border-[#454652] bg-[#131b2e] p-3">
+        <div class="flex items-center justify-between gap-2">
+            <label class="block text-[12px] font-semibold text-[#a9bad3]">Blocos do repertorio</label>
+            <button @click="openAddBlock = true" type="button" class="rounded border border-[#5262b2] bg-[#3c4c9f] px-3 py-1.5 text-[13px] font-semibold text-[#dee0ff] hover:bg-[#4858ab]">
+                + Adicionar bloco
+            </button>
         </div>
 
-        @if ($repertoire->is_public)
-            <div class="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
-                <p class="font-semibold">Link publico</p>
-                <a class="break-all underline" target="_blank" href="{{ route('repertoires.public', $repertoire->share_token) }}">{{ route('repertoires.public', $repertoire->share_token) }}</a>
+        <div
+            x-show="openAddBlock"
+            x-transition.opacity
+            @keydown.escape.window="openAddBlock = false"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+            style="display: none;"
+        >
+            <div @click.outside="openAddBlock = false" class="w-full max-w-lg rounded border border-[#454652] bg-[#131b2e] p-4 shadow-2xl">
+                <h3 class="text-[14px] font-bold text-[#dae2fd]">Adicionar novo bloco</h3>
+                <p class="mt-1 text-[12px] text-[#a9bad3]">Crie uma nova secao para organizar as musicas.</p>
+
+                <form wire:submit="addBlock" class="mt-3 space-y-2">
+                    <input wire:model="newBlockName" type="text" placeholder="Ex: Inicio" class="w-full rounded border border-[#454652] bg-[#0b1326] px-2 py-1.5 text-[#dae2fd]" />
+
+                    @error('newBlockName')
+                        <p class="text-[12px] text-[#ffb4ab]">{{ $message }}</p>
+                    @enderror
+
+                    <div class="flex items-center justify-end gap-2 pt-1">
+                        <button @click="openAddBlock = false" type="button" class="rounded border border-[#454652] bg-[#0b1326] px-3 py-1.5 text-[13px] font-semibold text-[#c6c5d4]">Cancelar</button>
+                        <button type="submit" class="rounded border border-[#5262b2] bg-[#3c4c9f] px-3 py-1.5 text-[13px] font-semibold text-[#dee0ff] hover:bg-[#4858ab]">Adicionar bloco</button>
+                    </div>
+                </form>
             </div>
-        @endif
+        </div>
     </div>
 
-    <div class="rounded-3xl border border-slate-200 bg-white p-4 sm:p-5">
-        <label class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">Novo bloco</label>
-        <form wire:submit="addBlock" class="flex flex-col gap-2 sm:flex-row">
-            <input wire:model="newBlockName" type="text" placeholder="Ex: Inicio, Louvor, Encerramento" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 outline-none focus:border-teal-500" />
-            <button type="submit" class="rounded-xl bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-teal-500">Adicionar bloco</button>
-        </form>
-        @error('newBlockName')
-            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-        @enderror
-    </div>
-
-    <div class="space-y-4">
+    <div class="space-y-3" x-init="window.initBlockSortable($el, $wire)">
         @foreach ($repertoire->blocks as $block)
-            <article class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-                <header class="border-b border-slate-100 bg-slate-50/80 px-4 py-3 sm:px-5">
-                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <h2 class="text-base font-bold text-slate-800 sm:text-lg">{{ $block->name }}</h2>
-                        <div class="flex flex-wrap items-center gap-2">
-                            <button wire:click="moveBlockUp({{ $block->id }})" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-sm hover:bg-slate-100">↑</button>
-                            <button wire:click="moveBlockDown({{ $block->id }})" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-sm hover:bg-slate-100">↓</button>
-                            <button wire:click="deleteBlock({{ $block->id }})" wire:confirm="Excluir bloco e musicas?" class="rounded-lg border border-red-300 bg-red-50 px-3 py-1 text-sm font-medium text-red-700 hover:bg-red-100">Excluir bloco</button>
-                        </div>
+            @php
+                $songsCount = $block->songs->count();
+                $estimatedMinutes = $songsCount * 4;
+            @endphp
+            <article data-block-id="{{ $block->id }}" class="overflow-hidden rounded border border-[#454652] bg-[#131b2e]">
+                <header class="flex flex-wrap items-center justify-between gap-2 bg-[#171f33] px-3 py-2 text-[12px] font-bold uppercase tracking-wider text-[#a9bad3]">
+                    <button wire:click="toggleBlock({{ $block->id }})" type="button" class="inline-flex items-center gap-2 text-left">
+                        <span class="text-[#c6c5d4]">{{ $activeBlockId === $block->id ? '▾' : '▸' }}</span>
+                        <span>Bloco: {{ $block->name }}</span>
+                        <span class="rounded border border-[#454652] bg-[#0b1326] px-1.5 py-0.5 text-[10px] font-semibold tracking-normal text-[#8f8f9e] normal-case">
+                            {{ $block->songs->count() }} {{ $block->songs->count() === 1 ? 'musica' : 'musicas' }}
+                        </span>
+                        <span class="rounded border border-[#454652] bg-[#0b1326] px-1.5 py-0.5 text-[10px] font-semibold tracking-normal text-[#8f8f9e] normal-case">
+                            ~{{ $estimatedMinutes }} min
+                        </span>
+                    </button>
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" title="Arrastar bloco" class="block-drag-handle cursor-grab rounded border border-[#454652] bg-[#0b1326] px-2 py-1 text-[12px] text-[#c6c5d4] active:cursor-grabbing">↕</button>
+                        <button wire:click="promptDeleteBlock({{ $block->id }})" type="button" class="rounded border border-[#7a3d4a] bg-[#331922] px-2 py-1 text-[12px] text-[#ffb4ab]">Excluir bloco</button>
                     </div>
                 </header>
 
-                <div class="space-y-3 p-4 sm:p-5">
+                @if ($activeBlockId === $block->id)
+                <div class="divide-y divide-[#2d3449]" x-init="window.initSongSortable($el, {{ $block->id }}, $wire)">
                     @forelse ($block->songs as $song)
-                        <div class="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4">
-                            <div class="mb-3 flex items-center justify-between">
-                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Musica cadastrada</p>
-                                <div class="flex items-center gap-2">
-                                    <button wire:click="moveSongUp({{ $song->id }})" class="rounded-md border border-slate-300 px-2 py-1 text-sm hover:bg-slate-100">↑</button>
-                                    <button wire:click="moveSongDown({{ $song->id }})" class="rounded-md border border-slate-300 px-2 py-1 text-sm hover:bg-slate-100">↓</button>
-                                    <button wire:click="deleteSong({{ $song->id }})" wire:confirm="Excluir musica?" class="rounded-md border border-red-300 bg-red-50 px-2 py-1 text-sm text-red-700 hover:bg-red-100">X</button>
-                                </div>
-                            </div>
+                        @php($isEditing = (bool) ($editingSongs[$song->id] ?? false))
 
-                            <div class="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-5">
-                                <div class="xl:col-span-1">
-                                    <label class="mb-1 block text-xs font-semibold text-slate-500">Artista</label>
-                                    <input value="{{ $song->artist_name }}" wire:change="updateSongField({{ $song->id }}, 'artist_name', $event.target.value)" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="Artista" />
-                                </div>
-                                <div class="xl:col-span-1">
-                                    <label class="mb-1 block text-xs font-semibold text-slate-500">Musica</label>
-                                    <input value="{{ $song->title }}" wire:change="updateSongField({{ $song->id }}, 'title', $event.target.value)" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="Musica" />
-                                </div>
-                                <div class="xl:col-span-1">
-                                    <label class="mb-1 block text-xs font-semibold text-slate-500">Tom</label>
-                                    <input value="{{ $song->key_tonic }}" wire:change="updateSongField({{ $song->id }}, 'key_tonic', $event.target.value)" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="C, D#, Bb" />
-                                </div>
-                                <div class="xl:col-span-1">
-                                    <label class="mb-1 block text-xs font-semibold text-slate-500">Modo</label>
-                                    <select wire:change="updateSongField({{ $song->id }}, 'key_mode', $event.target.value)" class="w-full rounded-lg border border-slate-300 px-3 py-2">
-                                        <option value="" @selected(!$song->key_mode)>Selecionar</option>
-                                        <option value="major" @selected($song->key_mode === 'major')>Maior</option>
-                                        <option value="minor" @selected($song->key_mode === 'minor')>Menor</option>
-                                    </select>
-                                </div>
-                                <div class="xl:col-span-1">
-                                    <label class="mb-1 block text-xs font-semibold text-slate-500">BPM</label>
-                                    <input value="{{ $song->bpm }}" wire:change="updateSongField({{ $song->id }}, 'bpm', $event.target.value)" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="Opcional" />
-                                </div>
-                            </div>
+                        <div data-song-id="{{ $song->id }}" class="px-3 py-2">
+                            @if (! $isEditing)
+                                <div x-data="{ showDetails: false }" class="space-y-1">
+                                    <div class="flex flex-col gap-2 md:flex-row md:items-start">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex flex-wrap items-baseline gap-x-2">
+                                                <span class="rounded border border-[#2d3449] bg-[#0f172a] px-1.5 py-0.5 text-[11px] font-bold {{ $song->key_mode === 'minor' ? 'text-[#f9bd22]' : 'text-[#bac3ff]' }}">
+                                                    {{ $this->toneShort($song->key_tonic, $song->key_mode) }}
+                                                </span>
+                                                <p class="text-[16px] font-semibold text-[#dae2fd]">{{ $song->title }}</p>
+                                                <p class="text-[13px] text-[#c6c5d4]">{{ $song->artist_name }}</p>
+                                            </div>
+                                        </div>
 
-                            <div class="mt-2">
-                                <label class="mb-1 block text-xs font-semibold text-slate-500">Trecho para lembrar como comeca</label>
-                                <textarea wire:change="updateSongField({{ $song->id }}, 'intro_excerpt', $event.target.value)" class="w-full rounded-lg border border-slate-300 px-3 py-2" rows="2" placeholder="Ex: primeira frase ou referencia de entrada">{{ $song->intro_excerpt }}</textarea>
-                            </div>
+                                        <div class="flex items-center gap-1">
+                                            <button @click="showDetails = !showDetails" type="button" class="rounded border border-[#454652] bg-[#0b1326] px-2 py-1 text-[12px] text-[#c6c5d4]">
+                                                Detalhes
+                                            </button>
+                                            <button wire:click="startEditSong({{ $song->id }})" type="button" class="rounded border border-[#454652] bg-[#0b1326] px-2 py-1 text-[12px] text-[#c6c5d4]" title="Editar">✎</button>
+                                            <button type="button" title="Arrastar musica" class="song-drag-handle cursor-grab rounded border border-[#454652] bg-[#0b1326] px-2 py-1 text-[12px] text-[#c6c5d4] active:cursor-grabbing">↕</button>
+                                            <button wire:click="promptDeleteSong({{ $song->id }})" type="button" class="rounded border border-[#7a3d4a] bg-[#331922] px-2 py-1 text-[12px] text-[#ffb4ab]">X</button>
+                                        </div>
+                                    </div>
+
+                                    <div x-show="showDetails" x-transition.opacity class="rounded border border-[#2d3449] bg-[#0f172a] px-2 py-1.5 text-[12px] text-[#a9bad3]" style="display: none;">
+                                        <p>
+                                            <span class="font-semibold text-[#c6c5d4]">Tom:</span>
+                                            <span class="{{ $song->key_mode === 'minor' ? 'text-[#f9bd22]' : 'text-[#bac3ff]' }}">{{ $this->toneShort($song->key_tonic, $song->key_mode) }}</span>
+                                            ·
+                                            <span class="font-semibold text-[#c6c5d4]">BPM:</span>
+                                            {{ $song->bpm ?: '--' }}
+                                        </p>
+                                    </div>
+
+                                    <p class="truncate text-[12px] italic text-[#8f8f9e]" title="{{ $song->intro_excerpt ?: 'Sem anotacoes' }}">
+                                        Intro: {{ $song->intro_excerpt ?: 'Sem anotacoes' }}
+                                    </p>
+                                </div>
+                            @else
+                                <div class="space-y-2">
+                                    <div class="grid grid-cols-1 gap-2 md:grid-cols-[1.5fr,1.2fr,150px,170px,auto]">
+                                        <input wire:model="songDrafts.{{ $song->id }}.title" class="rounded border border-[#454652] bg-[#0b1326] px-2 py-1.5 text-[13px] text-[#dae2fd]" placeholder="Titulo" />
+                                        <input wire:model="songDrafts.{{ $song->id }}.artist_name" class="rounded border border-[#454652] bg-[#0b1326] px-2 py-1.5 text-[13px] text-[#dae2fd]" placeholder="Artista" />
+                                        <input wire:model="songDrafts.{{ $song->id }}.bpm" class="rounded border border-[#454652] bg-[#0b1326] px-2 py-1.5 text-[13px] text-[#dae2fd]" placeholder="BPM" />
+                                        <select
+                                            wire:change="setSongDraftKey({{ $song->id }}, $event.target.value)"
+                                            class="rounded border border-[#454652] bg-[#0b1326] px-2 py-1.5 text-[13px] text-[#dae2fd]"
+                                        >
+                                            <option value="">Selecionar tom</option>
+                                            <optgroup label="Tons Maiores">
+                                                @foreach ($majorTones as $tone)
+                                                    <option value="{{ $tone }}|major" @selected(($songDrafts[$song->id]['key_tonic'] ?? '') === $tone && ($songDrafts[$song->id]['key_mode'] ?? '') === 'major')>
+                                                        {{ $tone }}
+                                                    </option>
+                                                @endforeach
+                                            </optgroup>
+                                            <optgroup label="Tons Menores">
+                                                @foreach ($minorTones as $tone)
+                                                    <option value="{{ $tone }}|minor" @selected(($songDrafts[$song->id]['key_tonic'] ?? '') === $tone && ($songDrafts[$song->id]['key_mode'] ?? '') === 'minor')>
+                                                        {{ $tone }}m
+                                                    </option>
+                                                @endforeach
+                                            </optgroup>
+                                        </select>
+                                        <div class="flex items-center gap-1">
+                                            <button wire:click="saveEditedSong({{ $song->id }})" class="rounded border border-[#5262b2] bg-[#3c4c9f] px-2 py-1 text-[12px] font-semibold text-[#dee0ff]">Salvar</button>
+                                            <button wire:click="cancelEditSong({{ $song->id }})" class="rounded border border-[#454652] bg-[#0b1326] px-2 py-1 text-[12px] text-[#c6c5d4]">Cancelar</button>
+                                        </div>
+                                    </div>
+                                    <textarea wire:model="songDrafts.{{ $song->id }}.intro_excerpt" rows="2" class="w-full rounded border border-[#454652] bg-[#0b1326] px-2 py-1.5 text-[13px] text-[#dae2fd]" placeholder="Intro / anotacao"></textarea>
+                                </div>
+                            @endif
                         </div>
                     @empty
-                        <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">
-                            Este bloco ainda nao possui musicas.
-                        </div>
+                        <div class="px-3 py-3 text-[13px] text-[#a9bad3]">Este bloco ainda nao possui musicas.</div>
                     @endforelse
+                </div>
+                @endif
 
-                    <div class="rounded-2xl border border-dashed border-teal-300 bg-teal-50/40 p-3 sm:p-4">
-                        <h3 class="mb-3 text-sm font-bold text-slate-700">Adicionar musica no bloco</h3>
-                        <div class="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-5">
-                            <div class="xl:col-span-1">
-                                <label class="mb-1 block text-xs font-semibold text-slate-500">Artista</label>
-                                <input wire:model="newSongs.{{ $block->id }}.artist_name" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="Artista" />
-                            </div>
-                            <div class="xl:col-span-1">
-                                <label class="mb-1 block text-xs font-semibold text-slate-500">Musica</label>
-                                <input wire:model="newSongs.{{ $block->id }}.title" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="Nome da musica" />
-                            </div>
-                            <div class="xl:col-span-1">
-                                <label class="mb-1 block text-xs font-semibold text-slate-500">Tom</label>
-                                <input wire:model="newSongs.{{ $block->id }}.key_tonic" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="C, D#, Bb" />
-                            </div>
-                            <div class="xl:col-span-1">
-                                <label class="mb-1 block text-xs font-semibold text-slate-500">Modo</label>
-                                <select wire:model="newSongs.{{ $block->id }}.key_mode" class="w-full rounded-lg border border-slate-300 px-3 py-2">
-                                    <option value="">Selecionar</option>
-                                    <option value="major">Maior</option>
-                                    <option value="minor">Menor</option>
+                <div x-data="{ openAddSong: false }" @song-added.window="if ($event.detail.blockId === {{ $block->id }}) openAddSong = false" class="border-t border-[#2d3449] bg-[#171f33] p-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <p class="text-[12px] font-bold uppercase tracking-wider text-[#a9bad3]">Musicas do bloco</p>
+                        <button @click="openAddSong = true" type="button" class="rounded border border-[#454652] bg-[#0b1326] px-3 py-1.5 text-[13px] font-semibold text-[#c6c5d4] hover:bg-[#131b2e]">
+                            + Adicionar musica
+                        </button>
+                    </div>
+
+                    <div
+                        x-show="openAddSong"
+                        x-transition.opacity
+                        @keydown.escape.window="openAddSong = false"
+                        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+                        style="display: none;"
+                    >
+                        <div @click.outside="openAddSong = false" class="w-full max-w-3xl rounded border border-[#454652] bg-[#131b2e] p-4 shadow-2xl">
+                            <h3 class="text-[14px] font-bold text-[#dae2fd]">Adicionar musica ao bloco</h3>
+                            <p class="mt-1 text-[12px] text-[#a9bad3]">Bloco atual: {{ $block->name }}</p>
+
+                            <div class="mt-3 grid grid-cols-1 gap-2 md:grid-cols-[1.5fr,1fr,100px,220px,100px]">
+                                <input wire:model="newSongs.{{ $block->id }}.title" class="rounded border border-[#454652] bg-[#0b1326] px-2 py-1.5 text-[#dae2fd]" placeholder="Titulo" />
+                                <input wire:model="newSongs.{{ $block->id }}.artist_name" class="rounded border border-[#454652] bg-[#0b1326] px-2 py-1.5 text-[#dae2fd]" placeholder="Artista" />
+                                <input wire:model="newSongs.{{ $block->id }}.bpm" class="rounded border border-[#454652] bg-[#0b1326] px-2 py-1.5 text-[#dae2fd]" placeholder="BPM" />
+                                <select
+                                    wire:change="setNewSongKey({{ $block->id }}, $event.target.value)"
+                                    class="rounded border border-[#454652] bg-[#0b1326] px-2 py-1.5 text-[#dae2fd]"
+                                >
+                                    <option value="">Selecionar tom</option>
+                                    <optgroup label="Tons Maiores">
+                                        @foreach ($majorTones as $tone)
+                                            <option value="{{ $tone }}|major" @selected(($newSongs[$block->id]['key_tonic'] ?? '') === $tone && ($newSongs[$block->id]['key_mode'] ?? '') === 'major')>
+                                                {{ $tone }}
+                                            </option>
+                                        @endforeach
+                                    </optgroup>
+                                    <optgroup label="Tons Menores">
+                                        @foreach ($minorTones as $tone)
+                                            <option value="{{ $tone }}|minor" @selected(($newSongs[$block->id]['key_tonic'] ?? '') === $tone && ($newSongs[$block->id]['key_mode'] ?? '') === 'minor')>
+                                                {{ $tone }}m
+                                            </option>
+                                        @endforeach
+                                    </optgroup>
                                 </select>
                             </div>
-                            <div class="xl:col-span-1">
-                                <label class="mb-1 block text-xs font-semibold text-slate-500">BPM</label>
-                                <input wire:model="newSongs.{{ $block->id }}.bpm" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="Opcional" />
+
+                            <textarea wire:model="newSongs.{{ $block->id }}.intro_excerpt" rows="2" class="mt-2 w-full rounded border border-[#454652] bg-[#0b1326] px-2 py-1.5 text-[#dae2fd]" placeholder="Intro / anotacao"></textarea>
+
+                            <div class="mt-3 flex items-center justify-end gap-2">
+                                <button @click="openAddSong = false" type="button" class="rounded border border-[#454652] bg-[#0b1326] px-3 py-1.5 text-[13px] font-semibold text-[#c6c5d4]">Cancelar</button>
+                                <button wire:click="addSong({{ $block->id }})" type="button" class="rounded border border-[#5262b2] bg-[#3c4c9f] px-3 py-1.5 text-[13px] font-semibold text-[#dee0ff] hover:bg-[#4858ab]">
+                                    Adicionar musica
+                                </button>
                             </div>
                         </div>
-
-                        <div class="mt-2">
-                            <label class="mb-1 block text-xs font-semibold text-slate-500">Trecho para lembrar como comeca</label>
-                            <textarea wire:model="newSongs.{{ $block->id }}.intro_excerpt" class="w-full rounded-lg border border-slate-300 px-3 py-2" rows="2" placeholder="Ex: primeira frase da musica"></textarea>
-                        </div>
-
-                        <button wire:click="addSong({{ $block->id }})" class="mt-3 w-full rounded-xl bg-teal-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-teal-500 sm:w-auto">
-                            Adicionar musica
-                        </button>
                     </div>
                 </div>
             </article>
         @endforeach
     </div>
+
+    @if ($deleteTargetType)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+            <div class="w-full max-w-md rounded border border-[#454652] bg-[#131b2e] p-4 shadow-2xl">
+                <h3 class="text-[15px] font-bold text-[#dae2fd]">Confirmar exclusao</h3>
+                <p class="mt-2 text-[13px] text-[#a9bad3]">
+                    @if ($deleteTargetType === 'block')
+                        Tem certeza que deseja excluir o bloco <span class="font-semibold text-[#dee0ff]">{{ $deleteTargetLabel }}</span> e todas as musicas dele?
+                    @else
+                        Tem certeza que deseja excluir a musica <span class="font-semibold text-[#dee0ff]">{{ $deleteTargetLabel }}</span>?
+                    @endif
+                </p>
+
+                <div class="mt-4 flex items-center justify-end gap-2">
+                    <button wire:click="cancelDelete" type="button" class="rounded border border-[#454652] bg-[#0b1326] px-3 py-1.5 text-[13px] font-semibold text-[#c6c5d4]">Cancelar</button>
+                    <button wire:click="confirmDelete" type="button" class="rounded border border-[#7a3d4a] bg-[#331922] px-3 py-1.5 text-[13px] font-semibold text-[#ffb4ab]">Excluir</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @once
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+        <script>
+            window.initBlockSortable = function (el, wire) {
+                if (!window.Sortable || el.dataset.sortableInit === '1') {
+                    return;
+                }
+
+                el.dataset.sortableInit = '1';
+
+                Sortable.create(el, {
+                    animation: 150,
+                    handle: '.block-drag-handle',
+                    draggable: '[data-block-id]',
+                    onEnd() {
+                        const ids = Array.from(el.querySelectorAll('[data-block-id]')).map((item) => Number(item.dataset.blockId));
+                        wire.reorderBlocks(ids);
+                    },
+                });
+            };
+
+            window.initSongSortable = function (el, blockId, wire) {
+                if (!window.Sortable || el.dataset.sortableInit === '1') {
+                    return;
+                }
+
+                el.dataset.sortableInit = '1';
+
+                Sortable.create(el, {
+                    animation: 150,
+                    handle: '.song-drag-handle',
+                    draggable: '[data-song-id]',
+                    onEnd() {
+                        const ids = Array.from(el.querySelectorAll('[data-song-id]')).map((item) => Number(item.dataset.songId));
+                        wire.reorderSongs(blockId, ids);
+                    },
+                });
+            };
+        </script>
+    @endonce
 </section>
