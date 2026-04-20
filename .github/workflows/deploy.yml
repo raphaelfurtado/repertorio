@@ -39,6 +39,9 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: repertorio-app/
+          # Mantem estado de sincronizacao para enviar apenas arquivos alterados.
+          state-name: .ftp-state-backend.json
+          dangerous-clean-slate: false
           exclude: |
             public/**
             .git*
@@ -56,6 +59,9 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: public/
           server-dir: repertorio.websiteponto.com.br/
+          # Estado separado do backend para comparacao correta de alteracoes.
+          state-name: .ftp-state-frontend.json
+          dangerous-clean-slate: false
           exclude: |
             index.php
 
