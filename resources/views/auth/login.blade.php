@@ -2,14 +2,14 @@
 <x-layouts.app :title="$title">
     <section class="rp-glass rounded-3xl p-7 sm:p-8">
         <div class="mb-7 text-center">
-            <div class="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/25 text-xl font-black text-indigo-100">R</div>
-            <h1 class="mt-4 text-3xl font-extrabold tracking-tight text-indigo-100">Repertorio Pro</h1>
-            <p class="mt-2 text-sm text-slate-400">Professional Repertoire Management</p>
+            <div class="rp-badge mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl text-xl font-black">R</div>
+            <h1 class="rp-heading mt-4 text-3xl font-extrabold tracking-tight">Repertorio Pro</h1>
+            <p class="rp-muted mt-2 text-sm">Professional Repertoire Management</p>
         </div>
 
         <div class="rp-card rounded-2xl p-5">
-            <h2 class="text-xl font-bold text-indigo-50">Welcome Back</h2>
-            <p class="mt-2 text-sm leading-relaxed text-slate-400">
+            <h2 class="rp-heading text-xl font-bold">Welcome Back</h2>
+            <p class="rp-muted mt-2 text-sm leading-relaxed">
                 Sign in to access your setlists, library, and performance gear. Simple, fast and secure.
             </p>
 
@@ -21,7 +21,7 @@
                 <div class="mt-6 flex justify-center">
                     <div id="google-login-button"></div>
                 </div>
-                <p id="google-login-error" class="mt-3 hidden text-center text-sm text-red-300"></p>
+                <p id="google-login-error" class="mt-3 hidden text-center text-sm text-red-500"></p>
 
                 <script src="https://accounts.google.com/gsi/client" async defer></script>
                 <script>
@@ -75,12 +75,12 @@
                 </script>
             @endif
 
-            <div class="mt-6 text-center text-xs text-slate-500">
+            <div class="rp-faint mt-6 text-center text-xs">
                 Encrypted with stage-grade security protocols.
             </div>
         </div>
 
-        <div class="mt-5 text-center text-xs text-slate-500">
+        <div class="rp-faint mt-5 text-center text-xs">
             Privacy Policy · Terms of Service · Help Center
         </div>
     </section>

@@ -6,11 +6,23 @@
     $estimatedDuration = sprintf('%02d:%02d:00', $estimatedHours, $remainingMinutes);
 @endphp
 <!DOCTYPE html>
-<html class="dark" lang="pt-BR">
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>{{ $repertoire->name }} | Public View</title>
+
+    <script>
+        // Aplica o tema salvo (compartilhado com o app) antes da pintura.
+        (function () {
+            try {
+                if (localStorage.getItem('rp-theme') === 'dark') {
+                    document.documentElement.classList.add('dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
@@ -21,17 +33,17 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#bac3ff',
-                        tertiary: '#f9bd22',
-                        surface: '#0b1326',
-                        'surface-container': '#171f33',
-                        'surface-container-highest': '#2d3449',
-                        outline: '#8f8f9e',
-                        'outline-variant': '#454652',
-                        'on-surface': '#dae2fd',
-                        'on-surface-variant': '#c6c5d4',
-                        'primary-container': '#3c4c9f',
-                        'on-primary-container': '#bac3ff',
+                        primary: 'rgb(var(--c-primary) / <alpha-value>)',
+                        tertiary: 'rgb(var(--c-tertiary) / <alpha-value>)',
+                        surface: 'rgb(var(--c-surface) / <alpha-value>)',
+                        'surface-container': 'rgb(var(--c-surface-container) / <alpha-value>)',
+                        'surface-container-highest': 'rgb(var(--c-surface-container-highest) / <alpha-value>)',
+                        outline: 'rgb(var(--c-outline) / <alpha-value>)',
+                        'outline-variant': 'rgb(var(--c-outline-variant) / <alpha-value>)',
+                        'on-surface': 'rgb(var(--c-on-surface) / <alpha-value>)',
+                        'on-surface-variant': 'rgb(var(--c-on-surface-variant) / <alpha-value>)',
+                        'primary-container': 'rgb(var(--c-primary-container) / <alpha-value>)',
+                        'on-primary-container': 'rgb(var(--c-on-primary-container) / <alpha-value>)',
                     },
                 },
             },
@@ -39,6 +51,38 @@
     </script>
 
     <style>
+        /* ===== Tema CLARO (padrão) — papel / partitura ===== */
+        :root {
+            --c-primary: 58 71 160;
+            --c-tertiary: 176 106 0;
+            --c-surface: 244 239 227;
+            --c-surface-container: 250 246 238;
+            --c-surface-container-highest: 233 225 208;
+            --c-outline: 138 127 107;
+            --c-outline-variant: 111 102 87;
+            --c-on-surface: 36 38 46;
+            --c-on-surface-variant: 111 102 87;
+            --c-primary-container: 217 222 246;
+            --c-on-primary-container: 43 52 112;
+            --row-hover: rgba(40, 35, 25, 0.05);
+        }
+
+        /* ===== Tema ESCURO (toggle) — navy original ===== */
+        html.dark {
+            --c-primary: 186 195 255;
+            --c-tertiary: 249 189 34;
+            --c-surface: 11 19 38;
+            --c-surface-container: 23 31 51;
+            --c-surface-container-highest: 45 52 73;
+            --c-outline: 143 143 158;
+            --c-outline-variant: 69 70 82;
+            --c-on-surface: 218 226 253;
+            --c-on-surface-variant: 198 197 212;
+            --c-primary-container: 60 76 159;
+            --c-on-primary-container: 186 195 255;
+            --row-hover: rgba(255, 255, 255, 0.03);
+        }
+
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 450, 'GRAD' 0, 'opsz' 24;
         }
@@ -52,7 +96,7 @@
         }
 
         .row-hover:hover {
-            background-color: rgba(255, 255, 255, 0.03);
+            background-color: var(--row-hover);
         }
 
         .dense-text {
@@ -71,7 +115,7 @@
             </div>
             <div class="flex items-center gap-4 text-xs text-on-surface-variant">
                 <p class="hidden md:block">Main setlist compartilhado para visualizacao rapida.</p>
-                <button class="transition-colors hover:text-primary" type="button">
+                <button onclick="rpToggleTheme()" title="Alternar tema claro/escuro" class="transition-colors hover:text-primary" type="button">
                     <span class="material-symbols-outlined text-lg">contrast</span>
                 </button>
             </div>
@@ -142,5 +186,12 @@
             <span class="material-symbols-outlined text-xl">zoom_out</span>
         </button>
     </div>
+
+    <script>
+        window.rpToggleTheme = function () {
+            var isDark = document.documentElement.classList.toggle('dark');
+            try { localStorage.setItem('rp-theme', isDark ? 'dark' : 'light'); } catch (e) {}
+        };
+    </script>
 </body>
 </html>
