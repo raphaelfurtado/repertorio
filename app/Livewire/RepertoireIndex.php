@@ -30,11 +30,13 @@ class RepertoireIndex extends Component
         ]);
 
         $this->name = '';
+        $this->dispatch('rp-toast', message: 'Repertório criado.');
     }
 
     public function deleteRepertoire(int $repertoireId): void
     {
         $this->ownedRepertoire($repertoireId)->delete();
+        $this->dispatch('rp-toast', message: 'Repertório excluído.');
     }
 
     public function togglePublic(int $repertoireId): void
@@ -42,6 +44,7 @@ class RepertoireIndex extends Component
         $repertoire = $this->ownedRepertoire($repertoireId);
         $repertoire->is_public = ! $repertoire->is_public;
         $repertoire->save();
+        $this->dispatch('rp-toast', message: $repertoire->is_public ? 'Repertório publicado.' : 'Repertório despublicado.');
     }
 
     public function moveUp(int $repertoireId): void

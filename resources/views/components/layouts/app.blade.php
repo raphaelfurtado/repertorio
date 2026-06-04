@@ -250,27 +250,18 @@
                         <span class="rp-badge inline-flex h-10 w-10 items-center justify-center rounded-xl text-xl font-black">R</span>
                         <div>
                             <p class="rp-heading text-lg font-extrabold leading-none">Repertorio Pro</p>
-                            <p class="rp-faint mt-1 text-[11px] uppercase tracking-[0.15em]">Premium Gear</p>
+                            <p class="rp-faint mt-1 text-[11px] uppercase tracking-[0.15em]">Repertórios & palco</p>
                         </div>
                     </a>
 
-                    <button class="rp-btn-primary mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition">
+                    <a href="{{ route('dashboard') }}#novo-repertorio" class="rp-btn-primary mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition">
                         <span class="text-lg leading-none">+</span>
-                        Criar Novo Repertorio
-                    </button>
+                        Criar novo repertório
+                    </a>
 
                     <nav class="mt-6 space-y-1.5 text-sm">
                         <a href="{{ route('dashboard') }}" class="rp-nav-link flex items-center gap-2 rounded-xl px-3 py-2.5 {{ request()->routeIs('dashboard') ? 'is-active' : '' }}">
-                            <span>Dashboard</span>
-                        </a>
-                        <a href="{{ route('dashboard') }}" class="rp-nav-link flex items-center gap-2 rounded-xl px-3 py-2.5 {{ request()->routeIs('dashboard') ? 'is-active' : '' }}">
-                            <span>Library</span>
-                        </a>
-                        <a href="{{ route('dashboard') }}" class="rp-nav-link flex items-center gap-2 rounded-xl px-3 py-2.5">
-                            <span>Setlists</span>
-                        </a>
-                        <a href="{{ route('dashboard') }}" class="rp-nav-link flex items-center gap-2 rounded-xl px-3 py-2.5">
-                            <span>Archives</span>
+                            <span>Meus repertórios</span>
                         </a>
                     </nav>
 
@@ -283,7 +274,7 @@
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="flex w-full items-center justify-center rounded-xl border border-red-400/35 bg-red-400/10 px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-400/18">
-                                Sign Out
+                                Sair
                             </button>
                         </form>
                     </div>
@@ -306,18 +297,14 @@
 
                         <button @click="mobileNavOpen = false" type="button" class="rp-btn-muted mt-4 w-full rounded-xl px-3 py-2 text-sm font-semibold">Fechar</button>
 
+                        <a href="{{ route('dashboard') }}#novo-repertorio" @click="mobileNavOpen = false" class="rp-btn-primary mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold">
+                            <span class="text-lg leading-none">+</span>
+                            Criar novo repertório
+                        </a>
+
                         <nav class="mt-5 space-y-1.5 text-sm">
                             <a href="{{ route('dashboard') }}" class="rp-nav-link flex items-center gap-2 rounded-xl px-3 py-2.5 {{ request()->routeIs('dashboard') ? 'is-active' : '' }}">
-                                <span>Dashboard</span>
-                            </a>
-                            <a href="{{ route('dashboard') }}" class="rp-nav-link flex items-center gap-2 rounded-xl px-3 py-2.5 {{ request()->routeIs('dashboard') ? 'is-active' : '' }}">
-                                <span>Library</span>
-                            </a>
-                            <a href="{{ route('dashboard') }}" class="rp-nav-link flex items-center gap-2 rounded-xl px-3 py-2.5">
-                                <span>Setlists</span>
-                            </a>
-                            <a href="{{ route('dashboard') }}" class="rp-nav-link flex items-center gap-2 rounded-xl px-3 py-2.5">
-                                <span>Archives</span>
+                                <span>Meus repertórios</span>
                             </a>
                         </nav>
 
@@ -347,7 +334,7 @@
                                     </button>
                                     <h1 class="rp-heading text-lg font-bold sm:text-xl">{{ $title ?? 'Repertorio Pro' }}</h1>
                                 </div>
-                                <p class="rp-muted text-xs">Painel de repertorios e setlists</p>
+                                <p class="rp-muted text-xs">Painel de repertórios e setlists</p>
                             </div>
                             <div class="flex items-center gap-2 text-xs sm:text-sm">
                                 <button type="button" onclick="rpToggleTheme()" title="Alternar tema claro/escuro" class="rp-chip inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5">
@@ -385,6 +372,20 @@
             @endif
         @endauth
     </div>
+
+    @auth
+        {{-- Toast de feedback (ouve o evento 'rp-toast' disparado pelos componentes Livewire) --}}
+        <div
+            x-data="{ show: false, msg: '' }"
+            x-on:rp-toast.window="msg = ($event.detail && ($event.detail.message ?? $event.detail[0])) || 'Pronto'; show = true; clearTimeout(window._rpToast); window._rpToast = setTimeout(() => show = false, 2600)"
+            x-show="show"
+            x-transition.opacity.duration.200ms
+            class="rp-card fixed bottom-5 left-1/2 z-[80] -translate-x-1/2 rounded-xl px-4 py-2.5 text-sm font-semibold shadow-lg"
+            style="display: none;"
+        >
+            <span class="rp-heading" x-text="msg"></span>
+        </div>
+    @endauth
 
     @livewireScripts
 

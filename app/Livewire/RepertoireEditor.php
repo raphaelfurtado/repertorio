@@ -50,12 +50,14 @@ class RepertoireEditor extends Component
 
         $this->repertoire->name = $validated['repertoireName'];
         $this->repertoire->save();
+        $this->dispatch('rp-toast', message: 'Repertório salvo.');
     }
 
     public function togglePublic(): void
     {
         $this->repertoire->is_public = ! $this->repertoire->is_public;
         $this->repertoire->save();
+        $this->dispatch('rp-toast', message: $this->repertoire->is_public ? 'Repertório publicado.' : 'Repertório despublicado.');
     }
 
     public function addBlock(): void
@@ -77,6 +79,7 @@ class RepertoireEditor extends Component
         $this->activeBlockId = $block->id;
         $this->newBlockName = '';
         $this->dispatch('block-added');
+        $this->dispatch('rp-toast', message: 'Bloco adicionado.');
     }
 
     public function deleteBlock(int $blockId): void
@@ -86,6 +89,7 @@ class RepertoireEditor extends Component
         }
 
         $this->ownedBlock($blockId)->delete();
+        $this->dispatch('rp-toast', message: 'Bloco excluído.');
     }
 
     public function promptDeleteBlock(int $blockId): void
@@ -182,6 +186,7 @@ class RepertoireEditor extends Component
 
         $this->activeBlockId = $blockId;
         $this->dispatch('song-added', blockId: $blockId);
+        $this->dispatch('rp-toast', message: 'Música adicionada.');
     }
 
     public function setSongDraftKey(int $songId, string $signature): void
@@ -252,6 +257,7 @@ class RepertoireEditor extends Component
         $song->save();
 
         unset($this->editingSongs[$songId], $this->songDrafts[$songId]);
+        $this->dispatch('rp-toast', message: 'Música salva.');
     }
 
     public function updateSongField(int $songId, string $field, string $value): void
@@ -275,6 +281,7 @@ class RepertoireEditor extends Component
     {
         $this->ownedSong($songId)->delete();
         unset($this->editingSongs[$songId], $this->songDrafts[$songId]);
+        $this->dispatch('rp-toast', message: 'Música excluída.');
     }
 
     public function promptDeleteSong(int $songId): void

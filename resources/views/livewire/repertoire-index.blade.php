@@ -6,13 +6,13 @@
             <p class="rp-muted mt-2 text-sm">Organize setlists por turne, evento ou ensaio.</p>
         </div>
 
-        <form wire:submit="createRepertoire" class="rp-card w-full rounded-2xl p-3 sm:w-auto">
+        <form id="novo-repertorio" wire:submit="createRepertoire" class="rp-card w-full scroll-mt-6 rounded-2xl p-3 sm:w-auto">
             <div class="flex flex-col gap-2 sm:flex-row">
                 <input
                     wire:model="name"
                     type="text"
                     maxlength="120"
-                    placeholder="Nome do novo repertorio"
+                    placeholder="Nome do novo repertório"
                     class="rp-input w-full rounded-xl px-4 py-2.5 text-sm sm:w-72"
                 />
                 <button type="submit" class="rp-btn-primary rounded-xl px-4 py-2.5 text-sm font-semibold transition">

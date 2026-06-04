@@ -4,13 +4,13 @@
         <div class="mb-7 text-center">
             <div class="rp-badge mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl text-xl font-black">R</div>
             <h1 class="rp-heading mt-4 text-3xl font-extrabold tracking-tight">Repertorio Pro</h1>
-            <p class="rp-muted mt-2 text-sm">Professional Repertoire Management</p>
+            <p class="rp-muted mt-2 text-sm">Gestão de repertórios para o palco</p>
         </div>
 
         <div class="rp-card rounded-2xl p-5">
-            <h2 class="rp-heading text-xl font-bold">Welcome Back</h2>
+            <h2 class="rp-heading text-xl font-bold">Bem-vindo de volta</h2>
             <p class="rp-muted mt-2 text-sm leading-relaxed">
-                Sign in to access your setlists, library, and performance gear. Simple, fast and secure.
+                Entre para acessar seus setlists, biblioteca e o modo palco. Simples, rápido e seguro.
             </p>
 
             @if ($googleClientId === '')
@@ -76,12 +76,12 @@
             @endif
 
             <div class="rp-faint mt-6 text-center text-xs">
-                Encrypted with stage-grade security protocols.
+                Protegido com segurança de nível profissional.
             </div>
         </div>
 
         <div class="rp-faint mt-5 text-center text-xs">
-            Privacy Policy · Terms of Service · Help Center
+            Privacidade · Termos de uso · Ajuda
         </div>
     </section>
 </x-layouts.app>
